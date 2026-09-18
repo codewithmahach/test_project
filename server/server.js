@@ -11,14 +11,16 @@ process.on('uncaughtException', (err) => {
 
 // connectDatabase();
 
-cloudinary.config({
+if (process.env.CLOUDINARY_NAME && process.env.CLOUDINARY_API_KEY) {
+  cloudinary.config({
     cloud_name: process.env.CLOUDINARY_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+  });
+}
 
 const server = app.listen(PORT, () => {
-    console.log(`Server running`)
+  console.log(`RentVerse Server running on port ${PORT} 🚀`);
 });
 
 // Unhandled Promise Rejection

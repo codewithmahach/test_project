@@ -1,10 +1,96 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FiFilter, FiArrowRight, FiTrendingUp, FiDollarSign } from 'react-icons/fi';
 import { FaEthereum } from 'react-icons/fa';
+import ledgerApi from '../services/api';
+
+const DEFAULT_PROPERTIES = [
+  {
+    id: 1,
+    title: 'Modern Villa with Pool',
+    price: {
+      usd: 850000,
+      eth: 425,
+    },
+    location: 'Beverly Hills, CA',
+    image: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800&q=80',
+    type: 'villa',
+    roi: '7.2%',
+    metrics: {
+      totalInvestors: 142,
+      funded: '89%',
+      minInvestment: '$10',
+      monthlyIncome: '$520',
+      appreciation: '4.5%',
+    },
+    status: 'Active Investment',
+    features: ['Pool', 'Smart Home', 'Solar Panels'],
+    tokenDetails: {
+      totalTokens: 85000,
+      availableTokens: 9350,
+      tokenPrice: '$10',
+      tokenSymbol: 'VILLA425',
+    },
+  },
+  {
+    id: 2,
+    title: 'Luxury Penthouse',
+    price: {
+      usd: 1200000,
+      eth: 600,
+    },
+    location: 'Manhattan, NY',
+    image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80',
+    type: 'apartment',
+    roi: '6.8%',
+    metrics: {
+      totalInvestors: 203,
+      funded: '95%',
+      minInvestment: '$10',
+      monthlyIncome: '$680',
+      appreciation: '5.2%',
+    },
+    status: 'Almost Funded',
+    features: ['Doorman', 'Gym', 'Terrace'],
+    tokenDetails: {
+      totalTokens: 120000,
+      availableTokens: 6000,
+      tokenPrice: '$10',
+      tokenSymbol: 'PENT600',
+    },
+  },
+  {
+    id: 3,
+    title: 'Waterfront Estate',
+    price: {
+      usd: 2100000,
+      eth: 1050,
+    },
+    location: 'Miami Beach, FL',
+    image: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800&q=80',
+    type: 'house',
+    roi: '7.5%',
+    metrics: {
+      totalInvestors: 89,
+      funded: '45%',
+      minInvestment: '$10',
+      monthlyIncome: '$1200',
+      appreciation: '6.1%',
+    },
+    status: 'New Listing',
+    features: ['Waterfront', 'Dock', 'Wine Cellar'],
+    tokenDetails: {
+      totalTokens: 210000,
+      availableTokens: 115500,
+      tokenPrice: '$10',
+      tokenSymbol: 'ESTATE1050',
+    },
+  },
+];
 
 function Properties() {
+  const [properties, setProperties] = useState(DEFAULT_PROPERTIES);
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
     priceRange: 'all',
@@ -13,100 +99,33 @@ function Properties() {
     minROI: '',
     maxROI: '',
     fundingStatus: 'all',
-    sortBy: 'newest'
+    sortBy: 'newest',
   });
 
-  const properties = [
-    {
-      id: 1,
-      title: 'Modern Villa with Pool',
-      price: {
-        usd: 850000,
-        eth: 425
-      },
-      location: 'Beverly Hills, CA',
-      image: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800&q=80',
-      type: 'villa',
-      roi: '7.2%',
-      metrics: {
-        totalInvestors: 142,
-        funded: '89%',
-        minInvestment: '$10',
-        monthlyIncome: '$520',
-        appreciation: '4.5%'
-      },
-      status: 'Active Investment',
-      features: ['Pool', 'Smart Home', 'Solar Panels'],
-      tokenDetails: {
-        totalTokens: 85000,
-        availableTokens: 9350,
-        tokenPrice: '$10'
+  useEffect(() => {
+    const fetchProperties = async () => {
+      try {
+        const data = await ledgerApi.getProperties();
+        if (data.success && data.properties && data.properties.length > 0) {
+          setProperties(data.properties);
+        }
+      } catch (err) {
+        console.warn('Using local property cache:', err.message);
       }
-    },
-    {
-      id: 2,
-      title: 'Luxury Penthouse',
-      price: {
-        usd: 1200000,
-        eth: 600
-      },
-      location: 'Manhattan, NY',
-      image: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80',
-      type: 'apartment',
-      roi: '6.8%',
-      metrics: {
-        totalInvestors: 203,
-        funded: '95%',
-        minInvestment: '$10',
-        monthlyIncome: '$680',
-        appreciation: '5.2%'
-      },
-      status: 'Almost Funded',
-      features: ['Doorman', 'Gym', 'Terrace'],
-      tokenDetails: {
-        totalTokens: 120000,
-        availableTokens: 6000,
-        tokenPrice: '$10'
-      }
-    },
-    {
-      id: 3,
-      title: 'Waterfront Estate',
-      price: {
-        usd: 2100000,
-        eth: 1050
-      },
-      location: 'Miami Beach, FL',
-      image: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800&q=80',
-      type: 'house',
-      roi: '7.5%',
-      metrics: {
-        totalInvestors: 89,
-        funded: '45%',
-        minInvestment: '$10',
-        monthlyIncome: '$1200',
-        appreciation: '6.1%'
-      },
-      status: 'New Listing',
-      features: ['Waterfront', 'Dock', 'Wine Cellar'],
-      tokenDetails: {
-        totalTokens: 210000,
-        availableTokens: 115500,
-        tokenPrice: '$10'
-      }
-    }
-  ];
+    };
+    fetchProperties();
+  }, []);
 
   const handleFilterChange = (key, value) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
+    setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
-  const filteredProperties = properties.filter(property => {
+  const filteredProperties = properties.filter((property) => {
     if (filters.propertyType !== 'all' && property.type !== filters.propertyType) return false;
     if (filters.location && !property.location.toLowerCase().includes(filters.location.toLowerCase())) return false;
     if (filters.minROI && parseFloat(property.roi) < parseFloat(filters.minROI)) return false;
     if (filters.maxROI && parseFloat(property.roi) > parseFloat(filters.maxROI)) return false;
-    
+
     if (filters.priceRange !== 'all') {
       const [min, max] = filters.priceRange.split('-').map(Number);
       if (max && (property.price.usd < min || property.price.usd > max)) return false;
@@ -126,10 +145,10 @@ function Properties() {
           if (fundedPercentage < 90) return false;
           break;
         default:
-          break
+          break;
       }
     }
-    
+
     return true;
   });
 
@@ -155,10 +174,15 @@ function Properties() {
       <div className="bg-white shadow">
         <div className="container py-6">
           <div className="flex justify-between items-center">
-            <h1 className="text-3xl font-bold">Investment Properties</h1>
+            <div>
+              <h1 className="text-3xl font-bold">Investment Properties</h1>
+              <p className="text-sm text-secondary-500 mt-1">Live tokenized real estate ledger</p>
+            </div>
             <div className="flex items-center space-x-4">
               <button
-                className={`p-2 rounded-md ${showFilters ? 'bg-primary-100 text-primary-600' : 'hover:bg-secondary-100'}`}
+                className={`p-2 rounded-md ${
+                  showFilters ? 'bg-primary-100 text-primary-600' : 'hover:bg-secondary-100'
+                }`}
                 onClick={() => setShowFilters(!showFilters)}
               >
                 <FiFilter size={20} />
@@ -274,7 +298,7 @@ function Properties() {
           {sortedProperties.map((property, index) => (
             <motion.div
               key={property.id}
-              className="bg-white rounded-lg shadow-md overflow-hidden"
+              className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
@@ -286,8 +310,11 @@ function Properties() {
                     alt={property.title}
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute top-4 right-4 bg-white px-3 py-1 rounded-full text-primary-600 font-semibold">
+                  <div className="absolute top-4 right-4 bg-white px-3 py-1 rounded-full text-primary-600 font-semibold text-xs shadow-sm">
                     {property.status}
+                  </div>
+                  <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-sm text-white px-2.5 py-1 rounded text-xs font-mono font-medium">
+                    {property.tokenDetails?.tokenSymbol}
                   </div>
                 </div>
                 <div className="p-6">
@@ -336,11 +363,11 @@ function Properties() {
                   <div className="mb-4">
                     <div className="flex justify-between text-sm mb-1">
                       <span className="text-secondary-600">Funding Progress</span>
-                      <span className="font-medium">{property.metrics.funded}</span>
+                      <span className="font-bold text-primary-700">{property.metrics.funded}</span>
                     </div>
                     <div className="w-full bg-secondary-100 rounded-full h-2">
                       <div
-                        className="bg-primary-600 h-2 rounded-full"
+                        className="bg-primary-600 h-2 rounded-full transition-all duration-500"
                         style={{ width: property.metrics.funded }}
                       />
                     </div>
@@ -356,12 +383,12 @@ function Properties() {
                     </div>
                     <div className="flex justify-between text-sm mt-1">
                       <span className="text-secondary-600">Token Price</span>
-                      <span className="font-medium">{property.tokenDetails.tokenPrice}</span>
+                      <span className="font-medium">{property.tokenDetails.tokenPrice} (0.005 ETH)</span>
                     </div>
                   </div>
 
                   <button className="btn w-full flex items-center justify-center">
-                    Invest Now
+                    Invest & View Contract
                     <FiArrowRight className="ml-2" />
                   </button>
                 </div>

@@ -1,13 +1,16 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiArrowRight, FiUser, FiClock } from 'react-icons/fi';
 import { FaWallet, FaStore, FaMoneyBillWave, FaExchangeAlt, FaChartLine, FaLock, FaUserCog, FaCoins } from 'react-icons/fa';
 import { SiEthereum } from 'react-icons/si';
 import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
+import { useWallet, DEFAULT_WALLET } from '../context/WalletContext';
 
 function Home() {
   const [openSections, setOpenSections] = useState({});
+  const { isConnected, connectWallet } = useWallet();
+  const navigate = useNavigate();
 
   const featuredProperties = [
     {
@@ -416,10 +419,16 @@ function Home() {
               Browse Properties
             </Link>
             <button
+              onClick={() => {
+                if (!isConnected) {
+                  connectWallet(DEFAULT_WALLET);
+                }
+                navigate('/portfolio');
+              }}
               className="btn bg-primary-700 hover:bg-primary-800"
             >
               <FaWallet className="mr-2" />
-              Connect Wallet
+              {isConnected ? 'View Portfolio / Ledger' : 'Connect Wallet'}
             </button>
           </div>
         </div>
